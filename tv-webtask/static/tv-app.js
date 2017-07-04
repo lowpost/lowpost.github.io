@@ -1,5 +1,8 @@
 var lock = new Auth0Lock('yRATDah9GsiZbDacs_4hY29KgwVkfig8', 'lowpost.auth0.com');
 
+var currentVideo = 0;
+var videos = [];
+
 $(document).ready(function(){
 	updateAuthenticationStatus();
 });
@@ -38,15 +41,26 @@ function updateAuthenticationStatus(){
 
 function loadVideos(user) {
 	$.ajax({
-	type : 'GET',
-	url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/videos?user=' + user.email,
+		type : 'GET',
+		url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/videos?user=' + user.email
 	}).done(function(data) {
 		console.log(data);
+		videos = data.newVideos;
 		var player = new YT.Player('player', {
 			height: '450',
 			width: '800',
-			videoId: data.newVideos[0].id.videoId
+			videoId: videos[currentVideo].id.videoId
 		});
+	});
+}
+
+function blockVideo() {
+	$.ajax({
+		type : 'POST',
+		url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/block',
+		data : {user : user.email, video : videos[currentVideo].id.videoId}
+	}).done(function(data) {
+		console.log(data);
 	});
 }
 
