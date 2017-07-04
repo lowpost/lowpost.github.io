@@ -4,17 +4,17 @@ var currentVideo = 0;
 var videos = [];
 var player;
 
-$(document).ready(function(){
+$(document).ready(function() {
 	updateAuthenticationStatus();
 });
 
-function logout(){
+function logout() {
 	localStorage.removeItem('profile');
 	localStorage.removeItem('token');
 	updateAuthenticationStatus();
-};
+}
 
-function login(){
+function login() {
 	lock.show(function(err, profile, id_token) {
 		if (err) {
 			return alert(err.message);
@@ -23,7 +23,7 @@ function login(){
 		localStorage.setItem('token', id_token);
 		updateAuthenticationStatus();
 	});
-};
+}
 
 function updateAuthenticationStatus() {
 	$('#user').empty();
@@ -33,11 +33,13 @@ function updateAuthenticationStatus() {
 		$('#user').show().append('<a onclick="logout()">' + user.email + ' (Log out)</a>');
 		$('#login').hide();
 		$('#block').show();
-		loadVideos(user)
+		$('#skip').show();
+		loadVideos(user);
 	} else {
 		$('#login').show().append('<a onclick="login()">Log in</a>');
 		$('#user').hide();
 		$('#block').hide();
+		$('#skip').hide();
 	}
 }
 
@@ -55,6 +57,10 @@ function loadVideos(user) {
 	}).done(function(data) {
 		console.log(data);
 		videos = data.newVideos;
+		var watched = $('#watched');
+		for (i = 0; i < data.watchedVideos.length; i++) {
+			watched.append('<li>' + cleanseTitle(data.watchedVideos[i]) + '</li>');
+		}
 		player = new YT.Player('player', {
 			height: '450',
 			width: '800',
@@ -63,7 +69,7 @@ function loadVideos(user) {
 	            'onStateChange': onPlayerStateChange
 			}
 		});
-		updateVideoTitle();
+		updateTitles();
 	});
 }
 
@@ -72,7 +78,12 @@ function blockVideo() {
 }
 
 function watchedVideo() {
+	$('#watched').prepend('<li>' + cleanseTitle(videos[currentVideo]) + '</li>');
 	updateVideo('watched');
+}
+
+function skipVideo() {
+	nextVideo();
 }
 
 function updateVideo(verb) {
@@ -92,15 +103,26 @@ function updateVideo(verb) {
 function nextVideo() {
 	currentVideo++;
 	player.loadVideoById(videos[currentVideo].id.videoId);
-	updateVideoTitle();
+	updateTitles();
 }
 
-function updateVideoTitle() {
-	$('#block').text('Block ' + videos[currentVideo].snippet.title);
+function updateTitles() {
+	$('#playing').text(cleanseTitle(videos[currentVideo]));
+	var coming = $('#coming');
+	coming.html('');
+	for (i = currentVideo + 1; i < videos.length; i++) {
+		coming.append('<li>' + cleanseTitle(videos[i]) + '</li>');
+	}
 }
 
 function onPlayerStateChange(event) {
 	if (event.data == YT.PlayerState.ENDED) {
 		watchedVideo();
 	}
+}
+
+function cleanseTitle(video) {
+	var title = video.snippet.title;
+	title = title.replace('Key & Peele - ', '');
+	return title;
 }
