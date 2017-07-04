@@ -1,0 +1,56 @@
+var lock = new Auth0Lock('yRATDah9GsiZbDacs_4hY29KgwVkfig8', 'lowpost.auth0.com');
+
+$(document).ready(function(){
+	updateAuthenticationStatus();
+});
+
+function logout(){
+	localStorage.removeItem('profile');
+	localStorage.removeItem('token');
+	updateAuthenticationStatus();
+};
+
+function login(){
+	lock.show(function(err, profile, id_token) {
+		if (err) {
+			return alert(err.message);
+		}
+		localStorage.setItem('profile', JSON.stringify(profile));
+		localStorage.setItem('token', id_token);
+		updateAuthenticationStatus();
+	});
+};
+
+function updateAuthenticationStatus(){
+	$('#user').empty();
+	$('#login').empty();
+	var user = localStorage.getItem('profile');
+	if(user){
+		user = JSON.parse(user);
+		$('#user').show().append('<a onclick="logout()">' + user.email + ' (Log out)</a>');
+		$('#login').hide();
+	} else {
+		$('#login').show().append('<a onclick="login()">Log in</a>');
+		$('#user').hide();
+	}
+}
+
+function loadVideos() {
+	$.ajax({
+	type : 'GET',
+	url : 'http://localhost:8080/videos',
+	}).done(function(data) {
+		console.log(data);
+		player = new YT.Player('player', {
+			height: '450',
+			width: '800',
+			videoId: data[0].id.videoId
+		});
+	});
+}
+
+var player;
+function onYouTubeIframeAPIReady() {
+	loadVideos();
+}
+
