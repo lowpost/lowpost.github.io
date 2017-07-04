@@ -38,7 +38,7 @@ function updateAuthenticationStatus(){
 function loadVideos() {
 	$.ajax({
 	type : 'GET',
-	url : 'http://localhost:8080/videos',
+	url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/videos',
 	}).done(function(data) {
 		console.log(data);
 		player = new YT.Player('player', {
