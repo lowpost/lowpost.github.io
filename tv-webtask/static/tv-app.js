@@ -4,7 +4,7 @@ var currentVideo = 0;
 var videos = [];
 var player;
 
-$(document).ready(function() {
+$(document).ready(function () {
 	updateAuthenticationStatus();
 });
 
@@ -30,16 +30,14 @@ function updateAuthenticationStatus() {
 	$('#login').empty();
 	var user = getUser();
 	if (user) {
-		$('#user').show().append('<a onclick="logout()">' + user.email + ' (Log out)</a>');
+		$('#user').show().append('<a href="#" onclick="logout()">' + user.email + ' (Log out)</a>');
 		$('#login').hide();
-		$('#block').show();
-		$('#skip').show();
+		$('#video-content').show();
 		loadVideos(user);
 	} else {
-		$('#login').show().append('<a onclick="login()">Log in</a>');
+		$('#login').show().append('<a href="#" onclick="login()">Log in to view videos</a>');
 		$('#user').hide();
-		$('#block').hide();
-		$('#skip').hide();
+		$('#video-content').hide();
 	}
 }
 
@@ -58,9 +56,9 @@ function loadVideos(user) {
 		console.log(data);
 		videos = data.newVideos;
 		var watched = $('#watched');
-		for (i = 0; i < data.watchedVideos.length; i++) {
-			watched.append('<li>' + cleanseTitle(data.watchedVideos[i]) + '</li>');
-		}
+		$.each(data.watchedVideos, function(index, value) {
+			watched.append('<li>' + cleanseTitle(value) + '</li>');
+		});
 		player = new YT.Player('player', {
 			height: '450',
 			width: '800',
@@ -110,6 +108,7 @@ function updateTitles() {
 	$('#playing').text(cleanseTitle(videos[currentVideo]));
 	var coming = $('#coming');
 	coming.html('');
+	var i;
 	for (i = currentVideo + 1; i < videos.length; i++) {
 		coming.append('<li>' + cleanseTitle(videos[i]) + '</li>');
 	}
