@@ -100,8 +100,12 @@ function updateVideo(verb) {
 
 function nextVideo() {
 	currentVideo++;
-	player.loadVideoById(videos[currentVideo].id.videoId);
-	updateTitles();
+	if (currentVideo >= videos.length) {
+		location.reload();
+	} else {
+		player.loadVideoById(videos[currentVideo].id.videoId);
+		updateTitles();		
+	}
 }
 
 function updateTitles() {
