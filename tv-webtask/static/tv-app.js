@@ -25,12 +25,11 @@ function login(){
 	});
 };
 
-function updateAuthenticationStatus(){
+function updateAuthenticationStatus() {
 	$('#user').empty();
 	$('#login').empty();
-	var user = localStorage.getItem('profile');
-	if(user){
-		user = JSON.parse(user);
+	var user = getUser();
+	if (user) {
 		$('#user').show().append('<a onclick="logout()">' + user.email + ' (Log out)</a>');
 		$('#login').hide();
 		$('#block').show();
@@ -39,6 +38,13 @@ function updateAuthenticationStatus(){
 		$('#login').show().append('<a onclick="login()">Log in</a>');
 		$('#user').hide();
 		$('#block').hide();
+	}
+}
+
+function getUser() {
+	var user = localStorage.getItem('profile');
+	if (user) {
+		return JSON.parse(user);
 	}
 }
 
@@ -70,14 +76,17 @@ function watchedVideo() {
 }
 
 function updateVideo(verb) {
-	$.ajax({
-		type : 'POST',
-		url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/' + verb,
-		data : {user : user.email, video : videos[currentVideo].id.videoId}
-	}).done(function(data) {
-		console.log(data);
-	});
-	nextVideo();
+	var user = getUser();
+	if (user) {
+		$.ajax({
+			type : 'POST',
+			url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/' + verb,
+			data : {user : user.email, video : videos[currentVideo].id.videoId}
+		}).done(function(data) {
+			console.log(data);
+		});
+		nextVideo();		
+	}
 }
 
 function nextVideo() {
