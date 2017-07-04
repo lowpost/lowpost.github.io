@@ -2,6 +2,7 @@ var lock = new Auth0Lock('yRATDah9GsiZbDacs_4hY29KgwVkfig8', 'lowpost.auth0.com'
 
 var currentVideo = 0;
 var videos = [];
+var player;
 
 $(document).ready(function(){
 	updateAuthenticationStatus();
@@ -32,10 +33,12 @@ function updateAuthenticationStatus(){
 		user = JSON.parse(user);
 		$('#user').show().append('<a onclick="logout()">' + user.email + ' (Log out)</a>');
 		$('#login').hide();
+		$('#block').show();
 		loadVideos(user)
 	} else {
 		$('#login').show().append('<a onclick="login()">Log in</a>');
 		$('#user').hide();
+		$('#block').hide();
 	}
 }
 
@@ -46,25 +49,49 @@ function loadVideos(user) {
 	}).done(function(data) {
 		console.log(data);
 		videos = data.newVideos;
-		var player = new YT.Player('player', {
+		player = new YT.Player('player', {
 			height: '450',
 			width: '800',
-			videoId: videos[currentVideo].id.videoId
+			videoId : videos[currentVideo].id.videoId,
+			events: {
+	            'onStateChange': onPlayerStateChange
+			}
 		});
+		updateVideoTitle();
 	});
 }
 
 function blockVideo() {
+	updateVideo('block');
+}
+
+function watchedVideo() {
+	updateVideo('watched');
+}
+
+function updateVideo(verb) {
 	$.ajax({
 		type : 'POST',
-		url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/block',
+		url : 'https://wt-5dd25e6d4ef4b1b47550f77ba43a37f6-0.run.webtask.io/tv/' + verb,
 		data : {user : user.email, video : videos[currentVideo].id.videoId}
 	}).done(function(data) {
 		console.log(data);
 	});
+	nextVideo();
 }
 
-function onYouTubeIframeAPIReady() {
-	//loadVideos();
+function nextVideo() {
+	currentVideo++;
+	player.loadVideoById(videos[currentVideo].id.videoId);
+	updateVideoTitle();
 }
 
+function updateVideoTitle() {
+	$('#block').text('Block ' + videos[currentVideo].snippet.title);
+}
+
+function onPlayerStateChange(event) {
+	if (event.data == YT.PlayerState.ENDED) {
+		watchedVideo();
+	}
+}
