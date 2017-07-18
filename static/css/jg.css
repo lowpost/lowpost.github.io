@@ -1,0 +1,24 @@
+html, body {
+	background-color: #eee;
+	margin: 5px;
+	padding: 5px;
+}
+img{border:0;}
+#wrapper {
+	height: 100%;
+	margin: auto;
+	text-align:center;
+	background-color:#f3f3f3;
+	padding:10px;
+	border: 1px solid #999;
+}
+
+p, body, td, ol, ul, menu, blockquote, div { 
+	font-family: Trebuchet MS,Verdana,Arial,Helvetica;
+	font-size: 10pt;
+	color: #000033;
+}
+
+ul {text-align:left;}
+
+img.badge {padding: 5px;}
